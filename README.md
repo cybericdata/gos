@@ -4,7 +4,7 @@
 
 ## Data Collection:
 
-#### Develop and implement web scraping scripts to collect data from various online sources relevant to gender equality and women's empowerment;
+#### Develop and implement web scraping scripts to collect data from various online sources;
 
 #### Ensure data collected is accurate, up-to-date, and relevant.
 
@@ -22,7 +22,7 @@
 
 ## Integration with Existing Systems:
 
-#### Integrate the scraped data with existing systems like GenTrack, Track-it, and GenForm;
+#### Integrate the scraped data with existing systems.
 
 #### Ensure seamless data flow and compatibility between different platforms.
 
