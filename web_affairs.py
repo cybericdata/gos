@@ -2,9 +2,6 @@
 # what data types are needed
 # compile list of data sources like website, databases and online platforms
 
-# https://womenaffairs.gov.ng/ https://womenfund.org/ https://www.womenconsortiumofnigeria.org/ https://www.gpinigeria.org/ 
-# https://www.wrapanigeria.org/ https://witin.org/ https://womeningh.org/ 
-
 
 import requests
 from bs4 import BeautifulSoup
@@ -51,8 +48,8 @@ def save_to_csv(data, filename):
         writer.writerows(data)
 
 def main():
-    url = 'https://womenaffairs.gov.ng/index.php/publications-2'
-    base_url = 'https://womenaffairs.gov.ng/'
+    url = ''
+    base_url = ''
     output_file = 'gender_equality_web_data_1.csv'
 
     soup = fetch_and_parse(url)
