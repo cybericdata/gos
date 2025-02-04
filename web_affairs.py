@@ -2,22 +2,32 @@
 # what data types are needed
 # compile list of data sources like website, databases and online platforms
 
-
 import requests
 from bs4 import BeautifulSoup
 import csv
-import time
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def fetch_and_parse(url):
     try:
-        response = requests.get(url, timeout=10)
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Accept-Encoding": "gzip, deflate",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        }
+        response = requests.get(url, headers=headers)
         response.raise_for_status()
+        print("Site connection established..")
         return BeautifulSoup(response.text, 'html.parser')
     except requests.exceptions.RequestException as e:
         print(f"Failed to retrieve data from {url}: {e}")
         return None
 
 def extract_data(soup, base_url):
+    print("Extracting data...")
     data = []
     for item in soup.find_all('li'):
         span_tag = item
@@ -37,6 +47,7 @@ def extract_data(soup, base_url):
                         'title': title,
                         'news': news
                     })
+                    print("Done Extracting news data") 
         else:
             print("No span or link found")
     return data
@@ -48,13 +59,14 @@ def save_to_csv(data, filename):
         writer.writerows(data)
 
 def main():
-    url = ''
-    base_url = ''
-    output_file = 'gender_equality_web_data_1.csv'
+    url = os.getenv("WEB_ONE_URL")
+    base_url = os.getenv("WEB_ONE_BASE_URL")
+    output_file = 'data/gender_equality_web_data_1.csv'
 
     soup = fetch_and_parse(url)
     if soup:
         data = extract_data(soup, base_url)
+        print(data)
         save_to_csv(data, output_file)
 
 if __name__ == "__main__":

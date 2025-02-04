@@ -1,59 +1,51 @@
-import requests
-from bs4 import BeautifulSoup
-import csv
 import time
+from web_affairs import fetch_and_parse, save_to_csv
+import os
+from dotenv import load_dotenv
 
-url = 'https://womenfund.org/news'
-BASE_URL = 'https://womenfund.org/'
+load_dotenv()
 
-headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-    "Accept-Language": "en-US,en;q=0.9",
-    "Accept-Encoding": "gzip, deflate",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-}
+def extract_data(soup):
+    print("Extracting data...")
+    time.sleep(5) 
+    raw_data = []
+    for item in soup.find_all('article'):
+        span_tag = item
+        link = item.find('a')
 
-response = requests.get(url, headers=headers)
+        if span_tag:
+            title = span_tag.get_text(strip=True)
+            href = link['href']
 
-print(response)
-if response.status_code != 200:
-    print (" Failed to retrieve data:", response.status_code)
-    exit()
+            newsSoup = fetch_and_parse(href)
+            time.sleep(2)
+            
+            news_array = []
+            for news_data in newsSoup.find_all('p'):
+                news = news_data.get_text(strip=True)
+                news_array.append(news)
 
-soup = BeautifulSoup(response.text, 'html.parser')
+            raw_data.append({
+                'title': title,
+                'news': news_array
+            })
+            print("Done Extracting news data")
+        else:
+            print("No span found")
+    return raw_data
 
 
-time.sleep(5) 
-raw_data = []
-for item in soup.find_all('article'):
-    span_tag = item
-    link = item.find('a')
+def main():
+    url = os.getenv("WEB_TWO_URL")
+    output_file = 'data/gender_equality_web_data_2.csv'
 
-    if span_tag:
-        title = span_tag.get_text(strip=True)
-        href = link['href']
+    soup = fetch_and_parse(url)
+    if soup:
+        data = extract_data(soup)
+        save_to_csv(data, output_file)
 
-        newsResponse = requests.get(href, headers=headers)
-        newsSoup = BeautifulSoup(newsResponse.text, 'html.parser')
-        time.sleep(3)
-        
-        news_array = []
-        for news_data in newsSoup.find_all('p'):
-            news = news_data.get_text(strip=True)
-            news_array.append(news)
+if __name__ == "__main__":
+    main()
 
-        raw_data.append({
-            'title': title,
-            'news': news_array
-        })
-
-    else:
-        print("No span found")
-
-with open('gender_equality_data.csv', mode='w', newline='', encoding='utf-8') as file:
-    writer = csv.DictWriter(file, fieldnames=['title', 'news'])
-    writer.writeheader()
-    writer.writerows(raw_data)
-
-for data in raw_data:
-    print(f" Title: {data['title']}, news: {data['news']}")
+# for data in raw_data:
+#     print(f" Title: {data['title']}, news: {data['news']}")
